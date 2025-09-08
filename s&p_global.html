@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S&P Global — Brand Essence Wheel (Interactive)</title>
+    <style>
+        :root{
+          --spg-red:#E03C31;
+          --spg-black:#111111;
+          --spg-white:#ffffff;
+          --outer:#ffe6b3;
+          --inner:#bfe8cf;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%;margin:0;background:var(--spg-white);color:var(--spg-black);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+        header{position:fixed;left:0;right:0;top:0;padding:12px 18px;display:flex;align-items:center;background:linear-gradient(to bottom, #fff, #ffffffcc);backdrop-filter:saturate(1.2) blur(6px);z-index:2;border-bottom:1px solid #ececec}
+        .brand{font-weight:800;letter-spacing:.4px}
+        .brand .accent{color:var(--spg-red)}
+        main{height:100%;display:grid;place-items:center;padding-top:64px}
+        .wheel-wrap{position:relative;width:min(88vmin,820px);aspect-ratio:1}
+        svg{width:100%;height:100%;display:block}
+        .label{pointer-events:none;fill:var(--spg-black);font-size:7px;font-weight:700;text-anchor:middle;dominant-baseline:middle;word-wrap:break-word;max-width:50px}
+        .segment{cursor:pointer;transition:filter .25s ease, transform .25s ease}
+        .segment:hover{filter:brightness(1.03) drop-shadow(0 2px 6px #0001);transform:scale(1.01)}
+        .outer{fill:var(--outer);stroke:#333;stroke-width:1}
+        .inner{fill:var(--inner);stroke:#333;stroke-width:1}
+        .center-circle{fill:#fff;stroke:#333;stroke-width:1}
+        .center-text{font-weight:800;font-size:16px}
+        .overlay{position:fixed;inset:0;background:rgba(17,17,17,.2);display:none;align-items:center;justify-content:center;z-index:5}
+        .overlay.active{display:flex}
+        .sheet{position:relative;width:min(800px,92vw);max-height:86vh;background:#fff;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.25);overflow:hidden;transform-origin:center center}
+        .sheet-header{display:flex;align-items:center;gap:12px;padding:18px 20px;background:var(--spg-black);color:#fff}
+        .chip{background:var(--spg-red);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.3px}
+        .sheet h2{margin:0;font-size:22px}
+        .sheet-body{padding:18px 22px 26px 22px;line-height:1.5;font-size:16px}
+        .close{position:absolute;right:10px;top:10px;border:none;background:#ffffff22;color:#fff;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:18px}
+        .close:hover{background:#ffffff35}
+        .sheet-body { white-space: pre-line; }
+        .anim-enter{animation:scaleIn .35s cubic-bezier(.2,.7,.2,1) forwards}
+        .anim-exit{animation:scaleOut .25s cubic-bezier(.2,.7,.2,1) forwards}
+        @keyframes scaleIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+        @keyframes scaleOut{from{transform:scale(1);opacity:1}to{transform:scale(.85);opacity:0}}
+        .pulse{animation:pulse 1.8s ease-out 1}
+        @keyframes pulse{0%{transform:scale(.96);opacity:.8}40%{transform:scale(1.02);opacity:1}100%{transform:scale(1)}}
+        footer{position:fixed;bottom:10px;left:0;right:0;text-align:center;color:#777;font-size:12px}
+    </style>
+</head>
+<body>
+<header>
+    <div class="brand"><span class="accent">S&amp;P</span> Global — Brand Essence Wheel</div>
+</header>
+<main>
+    <div class="wheel-wrap pulse" id="wheel">
+        <svg viewBox="-220 -220 440 440" aria-label="Brand Essence Wheel">
+            <g id="outer-group"></g>
+            <g id="inner-group"></g>
+            <circle class="center-circle" cx="0" cy="0" r="60"></circle>
+            <text class="label center-text" x="0" y="-6">BRAND</text>
+            <text class="label center-text" x="0" y="14">ESSENCE</text>
+        </svg>
+    </div>
+</main>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="sheet anim-enter" id="sheet">
+        <div class="sheet-header" id="sheetHdr">
+            <span class="chip" id="chip"></span>
+            <h2 id="sheetTitle"></h2>
+            <button class="close" id="closeBtn" aria-label="Закрити">✕</button>
+        </div>
+        <div class="sheet-body" id="sheetBody"></div>
+    </div>
+</div>
+<footer>Клік = відкрити опис • Esc/Х/клік поза — закрити</footer>
+<script>
+    const innerData = [
+      { key:"target_audience", title:"Target Audience", chip:"Internal", body:"Інвестори та asset managers: побудова стратегій, вибір бенчмарків, управління ризиком.\n Банки/небанківські ФІ: кредитний аналіз, ціноутворення, ліміти ризику, регуляторна звітність.\n\nКорпорації (CFO/IR/стратегія): доступ до капіталу, M&A, конкурентний аналіз, планування переходу до низьковуглецевої моделі.\n\nУряди/муніципалітети: кредитні рейтинги, макроаналітика для бюджетування.\n\nЕнергетика/товари: ціни-еталони, попит/пропозиція, сценарії.\n\nПриватні ринки та венчур: оцінка неліствованих компаній і секторів.\n\nАкадемія/аналітичні центри: дослідження, моделювання політик."},
+      { key:"rational", title:"Rational Characteristics", chip:"Internal", body:"Якість даних: багатоступеневий збір, очищення, валідація, контроль версій.\n\nМетодології: публічність підходів, регулярні оновлення, ретро-тестування, відповідність регуляторам.\n\nМасштаб/покриття: країни, сектори, емітенти, інструменти, товарні позиції.\n\nПлатформи: швидкість, стабільність, інтероперабельність (експорти, API, інтеграції з робочими середовищами клієнтів).\n\nНадійність у часі: послідовність оцінок і безперервність даних через цикли й кризи."},
+      { key:"emotional", title:"Emotional Characteristics", chip:"Internal", body:"Довіра: відчуття опори на «золотий стандарт» галузі.\n\nВпевненість: спроможність ухвалювати рішення під тиском часу або волатильності.\n\nСпокій: зниження когнітивного навантаження завдяки чітким методам і прозорим поясненням.\n\nПрестиж: асоціація з найвищим професійним рівнем і глобальною спільнотою практиків."},
+      { key:"identity", title:"Identity & Communications", chip:"Internal", body:"Візуальна мова: мінімалізм, високий контраст, акцент червоним; придатна для цифро-першого середовища. Тон комунікації — фактаж і доказовість: white papers, індексні звіти, вебінари, подкасти, короткі дайджести «що це означає для ринку». Канали: сайт, професійні платформи, конференції, прямі брифінги з клієнтами. Єдиний меседж Essential Intelligence зберігається в усіх форматах."},
+    ];
+    const outerData = [
+      { key:"positioning", title:"Brand Positioning", chip:"External", body:"Позиція як еталонної інфраструктури даних і рішень на перетині рейтингів, індексів та ринкової/товарної аналітики. Більшість конкурентів сильні в одному зі стовпів; S&P Global інтегрує кілька, забезпечуючи мережеві ефекти: рейтинги впливають на ціноутворення, індекси — на продукти, дані — на моделі, а все разом — на рішення клієнтів."},
+      { key:"vision", title:"Brand Vision & Objectives", chip:"External", body:"Бачення: бути глобальним стандартом еталонної аналітики та даних для фінансових, товарних і суміжних ринків.\nЦілі:\n\nрозширювати покриття даних (фінанси, енергетика, ланцюги постачання, клімат) і поглиблювати інтеграцію наборів даних;\n\nінвестувати в аналітичні платформи та AI для швидшої обробки, моделювання й пояснюваності результатів;\n\nтримати фокус портфеля (відокремлення несинергійних активів, розвиток напрямів з ефектом мережі — рейтинги, індекси, ціноутворення, ринкові дані);\n\nпідтримувати лідерство в ESG/кліматичних продуктах як вектор довгострокової вартості для клієнтів.\nЛогіка: чим складніші ринки, тим цінніша надійна «опорна» інфраструктура знань."},
+      { key:"culture", title:"Organizational Culture", chip:"External" , body: "Опора на три цінності: Discovery (дослідницький драйв і наукова добросовісність), Partnership (внутрішня кросфункціональна співпраця та робота поруч із клієнтом), Integrity (незалежність, відсутність конфліктів інтересів, прозорість методологій). Культура включає:\n\nінклюзивність і різноманіття поглядів як умову якості моделей;\n\nпостійне навчання (методологічні апдейти, технічна майстерність, індустріальна експертиза);\n\nопераційні практики контролю якості: peer review, контроль даних, аудит процесів.\nРезультат — стійка довіра до оцінок і стандартів бренду."},
+      { key:"personality", title:"Brand Personality", chip:"External", body:"Надійний арбітр та строгий аналітик: впевнений, точний, етичний, сучасний (технологічно). Це «спокійний професіонал», що говорить цифрами, а не емоціями. Персона бренду задає стиль: конкретність формулювань, акуратність допущень, чітке відокремлення фактів від інтерпретацій. У кризові періоди така особистість працює як стабілізатор — знижує паніку та пропонує структуровану картину."},
+      { key:"name", title:"Name & Symbols", chip:"External", body:"S&P Global — спадкоємність Standard & Poor’s, що зберігає капітал довіри до абревіатури «S&P». Візуально: лаконічний логотип, домінанта чорного й білого, червоний як акцент точності/рішучості (лінія-підкреслення). Стримана типографіка й модульна система дають однаковий тон усім підбрендам: Ratings, Market Intelligence, Commodity Insights, Dow Jones Indices, Sustainable1."},
+      { key:"attributes", title:"Brand Attributes", chip:"External", body:"Архітектура продуктів як набір «інфраструктур ринку»:\n\nRatings: кредитні рейтинги, дослідження, аналітика ризику.\n\nMarket Intelligence: фінансові та галузеві дані, платформа Capital IQ Pro, інструменти моделювання.\n\nCommodity Insights: еталонні ціни й аналітика для енергетики та товарів (спадщина Platts).\n\nS&P Dow Jones Indices: бенчмарки на кшталт S&P 500 та DJIA.\n\nSustainable1: ESG/кліматичні дані та оцінки.\nАтрибутами також є глобальна присутність, методологічна строгість і технологічна подача (API, інтеграції, візуалізації)."},
+      { key:"benefits", title:"Brand Benefits", chip:"External", body:"Клієнтські вигоди:\n\nзниження невизначеності й ризику (краще ціноутворення капіталу, кредитна дисципліна, надійні припущення);\n\nшвидші процеси (єдині інтерфейси, інтегровані дані, готові моделі й бенчмарки);\n\nпідвищення якості стратегічних рішень (M&A, інвестиційні стратегії, політики ESG).\nРинкові вигоди: прозорість, порівнюваність, сумісність продуктів (ETF, деривативи, індексні мандати), що посилює ліквідність і стійкість системи."},
+      { key:"value", title:"Value Proposition", chip:"External", body:"Унікальне поєднання трьох шарів:\n\nдані (широкі, глибокі, історичні й оперативні),\n\nметодології (стандарти бенчмаркінгу, рейтингів, ціноутворення),\n\nекспертиза + платформи (аналітики, дослідники, Capital IQ Pro, RatingsDirect, інструменти для ESG).\nЦе дозволяє створювати рішення, що не лише інформують, а дають практичні наслідки: доступ до капіталу, комплаєнс, управління ризиками, альфа-генерація."}
+    ];
+    const svgNS = "http://www.w3.org/2000/svg";
+    const outerGroup = document.getElementById('outer-group');
+    const innerGroup = document.getElementById('inner-group');
+    function polarToCart(r, ang){return [r*Math.cos(ang), r*Math.sin(ang)];}
+    function arcPath(r1,r2,ang0,ang1){
+      const [x0,y0] = polarToCart(r2,ang0);
+      const [x1,y1] = polarToCart(r2,ang1);
+      const [x2,y2] = polarToCart(r1,ang1);
+      const [x3,y3] = polarToCart(r1,ang0);
+      const large = (ang1-ang0) > Math.PI ? 1 : 0;
+      return `M ${x0} ${y0} A ${r2} ${r2} 0 ${large} 1 ${x1} ${y1} L ${x2} ${y2} A ${r1} ${r1} 0 ${large} 0 ${x3} ${y3} Z`;
+    }
+    function placeText(r, ang, text){
+      const t = document.createElementNS(svgNS,'text');
+      t.setAttribute('class','label');
+      const [x,y] = polarToCart(r, ang);
+      t.setAttribute('x', x);
+      t.setAttribute('y', y);
+      t.textContent = text;
+      t.setAttribute('font-size', '12px');
+      return t;
+    }
+    const outerR1 = 140, outerR2 = 200;
+    outerData.forEach((d,i)=>{
+      const ang0 = (-90 + i*45) * Math.PI/180;
+      const ang1 = (-90 + (i+1)*45) * Math.PI/180;
+      const p = document.createElementNS(svgNS,'path');
+      p.setAttribute('d', arcPath(outerR1, outerR2, ang0, ang1));
+      p.setAttribute('data-title', d.title);
+      p.setAttribute('data-body', d.body);
+      p.setAttribute('data-chip', d.chip);
+      p.setAttribute('class','segment outer');
+      outerGroup.appendChild(p);
+      const mid = (ang0+ang1)/2;
+      const label = placeText((outerR1+outerR2)/2, mid, d.title.toUpperCase());
+      outerGroup.appendChild(label);
+    });
+    const innerR1 = 70, innerR2 = 140;
+    innerData.forEach((d,i)=>{
+      const ang0 = (-90 + i*90) * Math.PI/180;
+      const ang1 = (-90 + (i+1)*90) * Math.PI/180;
+      const p = document.createElementNS(svgNS,'path');
+      p.setAttribute('d', arcPath(innerR1, innerR2, ang0, ang1));
+      p.setAttribute('data-title', d.title);
+      p.setAttribute('data-body', d.body);
+      p.setAttribute('data-chip', d.chip);
+      p.setAttribute('class','segment inner');
+      innerGroup.appendChild(p);
+      const mid = (ang0+ang1)/2;
+      const label = placeText((innerR1+innerR2)/2, mid, d.title.toUpperCase());
+      innerGroup.appendChild(label);
+    });
+    const overlay = document.getElementById('overlay');
+    const sheet = document.getElementById('sheet');
+    const chip = document.getElementById('chip');
+    const title = document.getElementById('sheetTitle');
+    const body = document.getElementById('sheetBody');
+    const closeBtn = document.getElementById('closeBtn');
+    function openSegment(el){
+      chip.textContent = el.getAttribute('data-chip');
+      title.textContent = el.getAttribute('data-title');
+      body.textContent = el.getAttribute('data-body');
+      overlay.classList.add('active');
+      sheet.classList.remove('anim-exit');
+      sheet.classList.add('anim-enter');
+      overlay.setAttribute('aria-hidden','false');
+    }
+    function closeOverlay(){
+      sheet.classList.remove('anim-enter');
+      sheet.classList.add('anim-exit');
+      setTimeout(()=>{
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden','true');
+      }, 220);
+    }
+    document.addEventListener('click',(e)=>{
+      const target = e.target;
+      if(target.classList.contains('segment')){
+        openSegment(target);
+      }else if(overlay.classList.contains('active') && (target===overlay || target===closeBtn)){
+        closeOverlay();
+      }
+    });
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Escape' && overlay.classList.contains('active')) closeOverlay();
+    });
+</script>
+</body>
+</html>
